@@ -5,7 +5,7 @@ module.exports = {
     // Content
 
     redisToken: process.env.REDIS_TOKEN ?? "",
-    redisUrl: `rediss://default:${encodeURIComponent(redisToken)}@alert-jennet-81049.upstash.io:6379`,
+    redisUrl: `rediss://default:${encodeURIComponent(process.env.REDIS_TOKEN ?? "")}@alert-jennet-81049.upstash.io:6379`,
 
     // Web Server
     // This code handles how the web server handles data.
