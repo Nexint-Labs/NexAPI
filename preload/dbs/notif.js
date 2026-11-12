@@ -64,7 +64,7 @@ module.exports = {
     notifyDB,
     async execute() { // Re-sync API
         await devNotify.sync();
-        await userNotify.sync({force: true});
+        await userNotify.sync();
         await botNotify.sync();
     }
 }
