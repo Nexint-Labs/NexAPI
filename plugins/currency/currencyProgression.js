@@ -2,14 +2,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const jsonParser = bodyParser.json()
-const { token } = require('../config.js');
+const { token } = require('../../config.js');
 
 const member = function (userId, username) {
     if (!userId || !username) throw new Error('Missing userId or username');
     return { id: userId, username };
 };
 
-const { expGain } = require('../functions/currency/progression/xp.js');
+const { expGain } = require('../../functions/currency/progression/xp.js');
 
 router.post('/expGain', jsonParser, async (req, res) => {
     let request = req.body;

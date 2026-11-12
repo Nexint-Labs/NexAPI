@@ -21,5 +21,13 @@
     "sequelize": "^6.37.8",
     "sqlite3": "^6.0.1",
     "ws": "^8.20.1"
+  },
+  "imports": {
+    "#config/*": "./config/*.js",
+    "#functions/*": "./functions/*.js",
+    "#preload/*": "./preload/*.js",
+    "#console/*": "./console/*.js",
+    "#bot": "./bot.js",
+    "#index": "./index.js"
   }
 }

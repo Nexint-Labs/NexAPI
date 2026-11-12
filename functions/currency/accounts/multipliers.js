@@ -1,8 +1,14 @@
 const { multi } = require('../../../preload/dbs/currency.js');
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { getWallet } = require('../core/accounts.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const queryMulti = async function (guildMember, name, multiplier, findName, expire, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     if (findName === undefined) {
         return await multi.findAll({
             where: { userId: guildMember.id },
@@ -40,6 +46,11 @@ const queryMulti = async function (guildMember, name, multiplier, findName, expi
 };
 
 const updateMulti = async function (guildMember, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return await withCurrencyTransaction(async (t) => {
         let multiUser = await multi.findAll({
             where: { userId: guildMember.id },

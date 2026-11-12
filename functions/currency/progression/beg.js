@@ -1,7 +1,13 @@
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { getWallet } = require('../core/accounts.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const beg = async function (user) {
+    const status = await checkOptOut(user.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return withCurrencyTransaction(async (t) => {
         const wallet = await getWallet(user, t);
         const rng = Math.random();

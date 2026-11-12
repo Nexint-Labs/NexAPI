@@ -25,7 +25,7 @@ router.post('/getAction', jsonParser, async (req, res) => {
 
     const action = await getAction(userId, actionId, type);
     if (action.error) {
-        return res.status(400).json(action);
+        return res.status(500).json(action);
     }
     return res.status(200).json(action);
 });
@@ -49,7 +49,7 @@ router.post('/updateAction', jsonParser, async (req, res) => {
 
     const action = await updateAction(userId, actionId, type);
     if (action.error) {
-        return res.status(400).json(action);
+        return res.status(500).json(action);
     }
     return res.status(200).json(action);
 });

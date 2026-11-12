@@ -2,8 +2,14 @@ const { robAmount } = require('../../../configs/currencyConfig.js');
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { getWallet } = require('../core/accounts.js');
 const { miscCheck } = require('../progression/records.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const setRobbable = async function (guildMember, robbable) {
+    const status = await checkOptOut(guildMember.id, null,);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     if (typeof robbable !== 'boolean') throw new Error('INVALID_ROBBABLE');
     return await withCurrencyTransaction(async (t) => {
         let miscUser = await miscCheck(guildMember, t);
@@ -15,6 +21,11 @@ const setRobbable = async function (guildMember, robbable) {
 
 const attemptRobbery = async function (robberUser, victimUser) {
     if (robberUser.id === victimUser.id) throw new Error('INVALID_TARGET');
+    const status = await checkOptOut(robberUser.id, victimUser.id,);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return await withCurrencyTransaction(async (t) => {
         let robber = await getWallet(robberUser, t);
         let victim = await getWallet(victimUser, t);

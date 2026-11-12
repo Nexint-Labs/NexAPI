@@ -1,3 +1,4 @@
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 const {
     miscinfo,
     work
@@ -6,6 +7,11 @@ const {
 const { withCurrencyTransaction } = require('../core/transaction.js');
 
 const miscCheck = async function (guildMember, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return withCurrencyTransaction(async (t) => {
         const [record] = await miscinfo.findOrCreate({
             where: { userId: guildMember.id },
@@ -31,6 +37,11 @@ const miscCheck = async function (guildMember, existingTransaction = null) {
 }
 
 const workCheck = async function (guildMember, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return withCurrencyTransaction(async (t) => {
         const [record] = await work.findOrCreate({
             where: { userId: guildMember.id },

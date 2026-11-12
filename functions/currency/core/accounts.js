@@ -1,9 +1,15 @@
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 const { balance, bank, itemsdb } = require('../../../preload/dbs/currency.js');
 const { assertItemCount } = require('./validation.js');
 
 // Legacy account checks repair negative/NaN values. Do the same here,
 // inside the caller's transaction, so transactional operations agree.
 async function getWallet(user, transaction) {
+    const status = await checkOptOut(user.id, null, transaction);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     const [wallet] = await balance.findOrCreate({
         where: { userId: user.id },
         defaults: { name: user.username, value: 0, multiplier: 1 },
@@ -24,6 +30,11 @@ async function getWallet(user, transaction) {
 }
 
 async function getBank(user, transaction) {
+    const status = await checkOptOut(user.id, null, transaction);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     const [vault] = await bank.findOrCreate({
         where: { userId: user.id },
         defaults: { name: user.username, value: 0, maxValue: 1000000 },
@@ -44,6 +55,11 @@ async function getBank(user, transaction) {
 }
 
 async function getInventoryItem(user, itemId, transaction) {
+    const status = await checkOptOut(user.id, null, transaction);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     const [item] = await itemsdb.findOrCreate({
         where: { userId: user.id, name: String(itemId) },
         defaults: { value: 0 },

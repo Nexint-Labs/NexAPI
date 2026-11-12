@@ -35,12 +35,12 @@ module.exports = {
 
     // Do not change these. Used for version checking, command line functionality, and more.
     botName: "NexAPI Server",
-    version: "0.0.0",
-    versionID: 1, // nexint raw server version (index.js), plugins are updated independantly
+    version: "0.0.2",
+    versionID: 2, // nexint raw server version (index.js), plugins are updated independantly
     botChannel: "dev",
     fileCount: 55, // file count, if more files are added / removed the server detects the instance is modified
     mikuVer: "0.3.0",
     mikuChannel: "prod",
     updateURL: 'https://raw.githubusercontent.com/Nexint-Labs/NexAPI/refs/heads/main/config.js',
-    src: "https://github.com/Nexints/open-bot",
+    src: "https://github.com/Nexint-Labs/NexAPI",
 }

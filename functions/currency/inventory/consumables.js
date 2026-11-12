@@ -6,11 +6,17 @@ const {
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { assertQuantity, assertItemCount } = require('../core/validation.js');
 const { updateMulti } = require('../accounts/multipliers.js');
-const { getInventoryItem, getBank } = require('../core/accounts.js');
+const { getBank } = require('../core/accounts.js');
 const { openLootBox } = require('./lootbox.js');
 const { findItemById } = require('./catalog.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const consumeMulti = async function (guildMember, qty, itemId) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     console.log(qty)
     assertQuantity(qty);
 
@@ -94,6 +100,11 @@ const consumeMulti = async function (guildMember, qty, itemId) {
 };
 
 const consumeBanknotes = async function (guildMember, qty, bankValue) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     assertQuantity(qty);
 
     if (
@@ -143,12 +154,17 @@ const consumeBanknotes = async function (guildMember, qty, bankValue) {
 };
 
 const consumeLootbox = async function (guildMember, id, qty) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     if (![200, 201].includes(Number(id))) {
         throw new Error('INVALID_LOOTBOX');
     }
 
-    // Preserve the original 100-million opening limit.
-    assertQuantity(qty, 100000000);
+    // Preserve a 1 million opening limit.
+    assertQuantity(qty, 100000);
 
     // Cheap ownership check before potentially expensive reward generation.
     // Re-check inside the settlement transaction: inventory may change meanwhile.

@@ -8,6 +8,7 @@ const {
     assertFiniteAmount,
     assertBalance
 } = require('../core/validation.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const wagerSettlement = currency.define('wagerSettlement', {
     requestId: { type: Sequelize.STRING, unique: true, allowNull: false },
@@ -17,6 +18,11 @@ const wagerSettlement = currency.define('wagerSettlement', {
 });
 
 const settleWager = async function (user, stake, payout, existingTransaction = null, requestId = null) {
+    const status = await checkOptOut(user.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     if (requestId !== null && (!requestId || typeof requestId !== 'string')) throw new Error('INVALID_REQUEST_ID');
     if (requestId !== null) await wagerSettlement.sync();
     assertPositiveAmount(stake);
@@ -64,6 +70,11 @@ const settleWager = async function (user, stake, payout, existingTransaction = n
 // A reserved wager is represented by payout = -1. Existing settled wagers
 // always have nonnegative payouts, so no schema migration is necessary.
 const reserveWager = async (user, stake, requestId) => {
+    const status = await checkOptOut(user.id);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     assertPositiveAmount(stake);
     if (typeof requestId !== 'string' || !requestId.trim()) throw new Error('INVALID_REQUEST_ID');
     await wagerSettlement.sync();
@@ -84,6 +95,11 @@ const reserveWager = async (user, stake, requestId) => {
 };
 
 const resolveWager = async (user, stake, payout, requestId) => {
+    const status = await checkOptOut(user.id);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     assertPositiveAmount(stake);
     assertFiniteAmount(payout);
     if (payout < 0) throw new Error('INVALID_PAYOUT');

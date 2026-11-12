@@ -2,15 +2,15 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const jsonParser = bodyParser.json()
-const { token } = require('../config.js');
+const { token } = require('../../config.js');
 
 const member = function (userId, username) {
     if (!userId || !username) throw new Error('Missing userId or username');
     return { id: userId, username };
 };
 
-const { consumeBanknotes, consumeMulti, consumeLootbox } = require('../functions/currency/inventory/consumables.js');
-const { assertQuantity } = require('../functions/currency/core/validation.js');
+const { consumeBanknotes, consumeMulti, consumeLootbox } = require('../../functions/currency/inventory/consumables.js');
+const { assertQuantity } = require('../../functions/currency/core/validation.js');
 
 router.post('/consumeBanknotes', jsonParser, async (req, res) => {
     let request = req.body;

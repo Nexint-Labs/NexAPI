@@ -13,8 +13,14 @@ const {
 } = require('../core/validation.js');
 
 const { findItemById } = require('./catalog.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const buyItem = async function (id, guildMember, qty, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     const catalogItem = findItemById(id);
 
     // Preserve the original "item not found" result.

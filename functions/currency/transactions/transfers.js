@@ -13,8 +13,14 @@ const {
     getBank,
     getInventoryItem
 } = require('../core/accounts.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const transferBank = async function (guildMember, amount, direction, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     assertPositiveAmount(amount);
 
     if (!['deposit', 'withdraw'].includes(direction)) {
@@ -67,6 +73,11 @@ const transferBalance = async function (sender, recipient, amount, existingTrans
     if (sender.id === recipient.id) {
         throw new Error('CANNOT_TRANSFER_TO_SELF');
     }
+    const status = await checkOptOut(sender.id, recipient.id, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
 
     return withCurrencyTransaction(async (t) => {
         const from = await getWallet(sender, t);
@@ -97,6 +108,11 @@ const transferItem = async function (sender, recipient, itemId, qty, existingTra
 
     if (sender.id === recipient.id) {
         throw new Error('CANNOT_TRANSFER_TO_SELF');
+    }
+    const status = await checkOptOut(sender.id, recipient.id, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
     }
 
     return withCurrencyTransaction(async (t) => {

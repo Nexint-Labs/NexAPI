@@ -1,6 +1,7 @@
 const { devNotify, userNotify, botNotify, notifyDB } = require("../../preload/dbs/notif.js");
 const Sequelize = require('sequelize');
-const { findOrAddNotifyUser, refreshUser } = require("./user.js")
+const { findOrAddNotifyUser, refreshUser } = require("./user.js");
+const { checkOptOut } = require("#functions/optOutDbs/optOut");
 
 /*
 List Notifications
@@ -8,6 +9,11 @@ List the notifications the user has not read.
 Pre: NexAPI / Discord ID
 */
 const listUnreadNotifs = async function (id, refresh) {
+    const status = await checkOptOut(id);
+
+    if (status.error) {
+        return status;
+    }
     // Notify DB
     let notifs = [];
     let user = await findOrAddNotifyUser(id);
@@ -49,6 +55,11 @@ const listUnreadNotifs = async function (id, refresh) {
 }
 
 const listAllNotifs = async function (id, refresh) {
+    const status = await checkOptOut(id);
+
+    if (status.error) {
+        return status;
+    }
     // Notify DB
     let notifs = [];
     let user = await findOrAddNotifyUser(id);

@@ -1,8 +1,14 @@
 const { bank } = require('../../../preload/dbs/currency.js');
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { getBank } = require('../core/accounts.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 const bankCheck = async function (guildMember) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return await withCurrencyTransaction(async (t) => {
         return await getBank(guildMember, t);
     });
@@ -13,6 +19,11 @@ const queryBanks = async function () {
 };
 
 const updateBankAtomic = async function (guildMember, amountChange, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null, existingTransaction);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     if (
         typeof amountChange !== 'number' ||
         !Number.isFinite(amountChange)

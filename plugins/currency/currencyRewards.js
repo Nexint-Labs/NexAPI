@@ -2,16 +2,16 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const jsonParser = bodyParser.json()
-const { token } = require('../config.js');
+const { token } = require('../../config.js');
 
 const member = function (userId, username) {
     if (!userId || !username) throw new Error('Missing userId or username');
     return { id: userId, username };
 };
 
-const { beg } = require('../functions/currency/progression/beg.js');
-const { settleWager, reserveWager, resolveWager } = require('../functions/currency/transactions/wagers.js');
-const { payWeeklyInterest } = require('../functions/currency/administration/interest.js');
+const { beg } = require('../../functions/currency/progression/beg.js');
+const { settleWager, reserveWager, resolveWager } = require('../../functions/currency/transactions/wagers.js');
+const { payWeeklyInterest } = require('../../functions/currency/administration/interest.js');
 
 router.post('/beg', jsonParser, async (req, res) => {
     let request = req.body;

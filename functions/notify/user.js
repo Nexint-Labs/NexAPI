@@ -8,6 +8,11 @@ Pre: Discord or NexAPI ID
 Post: user
 */
 const findOrAddNotifyUser = async function (id) {
+    const status = await checkOptOut(id);
+
+    if (status.error) {
+        return status;
+    }
     try {
         const [user, created] = await notifyDB.transaction(async (t) => {
             return await userNotify.findOrCreate({
@@ -39,6 +44,11 @@ Pre: Discord or NexAPI ID
 Post: Notification user lol
 */
 const refreshUser = async function (id) {
+    const status = await checkOptOut(id);
+
+    if (status.error) {
+        return status;
+    }
     try {
         const rowsChanged = await notifyDB.transaction(async (t) => {
             return await userNotify.update(

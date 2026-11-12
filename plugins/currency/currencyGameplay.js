@@ -2,21 +2,21 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const jsonParser = bodyParser.json()
-const { token } = require('../config.js');
+const { token } = require('../../config.js');
 
 const member = function (userId, username) {
     if (!userId || !username) throw new Error('Missing userId or username');
     return { id: userId, username };
 };
 
-const { applyJob, performWork, getJobOffers } = require('../functions/currency/progression/jobs.js');
-const { setRobbable, attemptRobbery } = require('../functions/currency/transactions/robbery.js');
+const { applyJob, performWork, getJobOffers } = require('../../functions/currency/progression/jobs.js');
+const { setRobbable, attemptRobbery } = require('../../functions/currency/transactions/robbery.js');
 
 // Read-only job metadata: does not generate random offers or tokens.
 router.post('/getJobs', jsonParser, async (req, res) => {
     if (!req.body || req.body.token !== token) return res.status(403).json({ error: 'Insufficient Permissions' });
     try {
-        const { jobs } = require('../configs/currencyConfig.js');
+        const { jobs } = require('../../configs/currencyConfig.js');
         return res.status(200).json({ error: false, result: { jobs: jobs.map(({ name, credit }) => ({ name, credit })) } });
     } catch (error) {
         console.error('[Currency API] /getJobs:', error);

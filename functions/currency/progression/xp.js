@@ -6,8 +6,14 @@ const {
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { getBank } = require('../core/accounts.js');
 const { miscCheck } = require('./records.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 async function expGain(guildMember) {
+    const status = await checkOptOut(guildMember.id, null,);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     if (Math.random() <= expChance) return {
         error: false,
         expGained: 0,

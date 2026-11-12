@@ -2,8 +2,19 @@ const { jobs } = require('../../../configs/currencyConfig.js');
 const { withCurrencyTransaction } = require('../core/transaction.js');
 const { workCheck } = require('./records.js');
 const { getWallet } = require('../core/accounts.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
+
+// Stateless, short-lived job offers. Only NexAPI selects jobs and wages.
+const crypto = require('node:crypto');
+const { choiceCount } = require('../../../configs/currencyConfig.js');
+const { token: apiToken } = require('../../../config.js');
 
 const applyJob = async function (guildMember, jobId, offeredWage = null, offerToken) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     verifyOffer(offerToken, guildMember.id, jobId, offeredWage);
     if (!Number.isInteger(jobId) || !jobs[jobId]) throw new Error('INVALID_JOB');
     return await withCurrencyTransaction(async (t) => {
@@ -24,6 +35,11 @@ const applyJob = async function (guildMember, jobId, offeredWage = null, offerTo
 };
 
 const performWork = async function (guildMember) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc);
+    }
     return await withCurrencyTransaction(async (t) => {
         let workUser = await workCheck(guildMember, t);
         let balanceUser = await getWallet(guildMember, t);
@@ -54,11 +70,6 @@ const performWork = async function (guildMember) {
         return { status: 'OK', addedCoins, raise, balance: balanceUser.value, work: workUser };
     });
 };
-
-// Stateless, short-lived job offers. Only NexAPI selects jobs and wages.
-const crypto = require('node:crypto');
-const { choiceCount } = require('../../../configs/currencyConfig.js');
-const { token: apiToken } = require('../../../config.js');
 
 const signOffer = (payload) => {
     const data = Buffer.from(JSON.stringify(payload)).toString('base64url');

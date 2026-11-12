@@ -11,8 +11,16 @@ const {
     findItemById,
     findItemByName
 } = require('./catalog.js');
+const { checkOptOut } = require('#functions/optOutDbs/optOut');
 
 async function queryItem(id, guildMember) {
+    if (guildMember) {
+        const status = await checkOptOut(guildMember.id, null);
+
+        if (status.error) {
+            throw new Error(status.desc);
+        }
+    }
     if (id === undefined) {
         if (!guildMember) {
             throw new Error('USER_REQUIRED');
@@ -41,6 +49,13 @@ async function queryItem(id, guildMember) {
 }
 
 async function queryItemName(name, guildMember) {
+    if (guildMember) {
+        const status = await checkOptOut(guildMember.id, null);
+
+        if (status.error) {
+            throw new Error(status.desc);
+        }
+    }
     const item = findItemByName(name);
     const index = item ? findItemIndex(item.id) : -1;
 
@@ -59,6 +74,11 @@ async function queryItemName(name, guildMember) {
 }
 
 const updateItemAtomic = async function (guildMember, itemId, qtyChange, existingTransaction = null) {
+    const status = await checkOptOut(guildMember.id, null);
+
+    if (status.error) {
+        throw new Error(status.desc)
+    }
     if (!findItemById(itemId)) {
         throw new Error(`ITEM_NOT_FOUND: ${itemId}`);
     }

@@ -1,3 +1,4 @@
+const { checkOptOut } = require("#functions/optOutDbs/optOut");
 const { marryDB, marriage, marriageMember, propose } = require("../../preload/dbs/marriage");
 const { Op, Transaction } = require("sequelize");
 
@@ -17,6 +18,12 @@ const createMarriage = async function (id1, id2, transaction = null) {
                 desc: `You cannot marry yourself.`
             };
         }
+    }
+
+    const status = await checkOptOut(id1, id2, transaction);
+
+    if (status.error) {
+        return status;
     }
 
     const execute = async (t) => {
@@ -111,6 +118,13 @@ const createMarriage = async function (id1, id2, transaction = null) {
 }
 
 const getMarriage = async function (userId, transaction = null) {
+
+    const status = await checkOptOut(userId, null, transaction);
+
+    if (status.error) {
+        return status;
+    }
+
     const execute = async (t) => {
         const member = await marriageMember.findOne({
             where: { userId },
@@ -169,6 +183,7 @@ const getMarriage = async function (userId, transaction = null) {
 
 
 const deleteMarriage = async function (userId, transaction = null) {
+
     const execute = async (t) => {
         const member = await marriageMember.findOne({
             where: { userId },

@@ -2,23 +2,23 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const jsonParser = bodyParser.json()
-const { token } = require('../config.js');
+const { token } = require('../../config.js');
 
 const member = function (userId, username) {
     if (!userId || !username) throw new Error('Missing userId or username');
     return { id: userId, username };
 };
 
-const { queryItem, queryItemName } = require('../functions/currency/inventory/inventory.js');
-const { convItem, findItemById, findItemByName } = require('../functions/currency/inventory/catalog.js');
-const { getLootBox } = require('../functions/currency/inventory/lootbox.js');
-const { buyItem } = require('../functions/currency/inventory/purchases.js');
+const { queryItem, queryItemName } = require('../../functions/currency/inventory/inventory.js');
+const { convItem, findItemById, findItemByName } = require('../../functions/currency/inventory/catalog.js');
+const { getLootBox } = require('../../functions/currency/inventory/lootbox.js');
+const { buyItem } = require('../../functions/currency/inventory/purchases.js');
 
 // Read-only catalog for Discord shop presentation. Authoritative prices remain on NexAPI.
 router.post('/getItemCatalog', jsonParser, async (req, res) => {
     if (!req.body || req.body.token !== token) return res.status(403).json({ error: 'Insufficient Permissions' });
     try {
-        const { items } = require('../configs/currencyConfig.js');
+        const { items } = require('../../configs/currencyConfig.js');
         return res.status(200).json({ error: false, result: items });
     } catch (error) {
         console.error('[Currency API] /getItemCatalog:', error);
